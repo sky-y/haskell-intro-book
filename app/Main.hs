@@ -1,14 +1,28 @@
 module Main where
 
-import Control.Monad.Trans.Reader (Reader, ask, runReader)
-import Pow
-
--- import Game
+import Control.Monad (unless)
+import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.State (evalStateT, get, modify)
+import Control.Monad.Trans.Except (runExceptT, throwE)
 
 main :: IO ()
-main = print $ runReader realRound 1.5013232
+main = do
+    result <- (`evalStateT` 0) $ runExceptT $ loop
+    case result of
+        Right _ -> return ()
+        Left  e -> putStrLn e
 
-realRound :: Reader Double Int
-realRound = do
-    x <- ask
-    return $ round x
+    where
+        loop = do
+            i <- st $ get
+            unless (i < (3 :: Int)) $ throwE "Too much failure"
+
+            op <- io $ getLine
+            if op == "end" then
+                return ()
+            else do
+                st $ modify (+ 1)
+                loop
+
+        io = lift.lift
+        st = lift
