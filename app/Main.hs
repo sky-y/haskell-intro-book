@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Monad.Trans.Reader (Reader, ask, runReader)
+import Pow
 
 -- import Game
 
