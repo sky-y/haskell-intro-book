@@ -4,6 +4,7 @@ import Control.Monad (unless)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (evalStateT, get, modify)
 import Control.Monad.Trans.Except (runExceptT, throwE)
+import Control.Monad.IO.Class (liftIO)
 
 main :: IO ()
 main = do
@@ -14,15 +15,13 @@ main = do
 
     where
         loop = do
-            i <- st $ get
+            i <- lift $ get
             unless (i < (3 :: Int)) $ throwE "Too much failure"
 
-            op <- io $ getLine
+            op <- liftIO $ getLine
             if op == "end" then
                 return ()
             else do
-                st $ modify (+ 1)
+                lift $ modify (+ 1)
                 loop
 
-        io = lift.lift
-        st = lift
